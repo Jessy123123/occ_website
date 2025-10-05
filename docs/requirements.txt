@@ -1,0 +1,12 @@
+bootstrap3-datetime
+Django
+django-allauth
+django-mysql
+django-recaptcha
+djangorestframework
+djangorestframework-jwt
+google-api-python-client
+mysqlclient
+Pillow
+python-telegram-bot
+xlrd

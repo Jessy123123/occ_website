@@ -1,0 +1,120 @@
+<!-- Created by Navaneeth S, navisk13@gmail.com -->
+
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %} {% endblock %}
+{% load index %}
+
+{% block body %}
+    {% include 'base/nav-bar.html' %}
+    <div id="wrap">
+        <div id="main">
+            <!-- content goes here -->
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1 id="page-header">GSoC</h1>
+                    </div>
+                    <canvas id="gsoc-chart" ></canvas>
+                    <div class="col-md-12 table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-default">
+                            <tr>
+                                <th>Student</th>
+                                <th>Organisation</th>
+                                <th>Title</th>
+                                <th>Mentors</th>
+                                <th>Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for object in gsoc_list %}
+                                <tr class="click" onclick="window.location='{% url 'gsoc_detail' object.id %}';">
+                                    <th scope="row">{{ object.user.first_name }} {{ object.user.last_name }}</th>
+                                    <td>{{ object.organization }}</td>
+                                    <td>{{ object.title }}</td>
+                                    <td>{{ object.mentors }}</td>
+                                    {% for i in range %}
+                                                    {% ifequal object.date.month i %}
+                                                    <td> {{ month|index:i }}, {{ object.date.year }}</td>
+                                                {% endifequal %}
+                                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'base/footer.html' %}
+
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'base/js/chart-bundle.js'%}"></script>
+<script>
+    var config = {
+        type: 'pie',
+        data: {
+            datasets: [{
+                data: [
+                    {% for i in gsoc_y %}
+                        {{ i }},
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    {% for i in color_list %}
+                        '{{ i }}',
+                    {% endfor %}
+                ],
+                label: 'Organizations'
+            }],
+            labels: [
+                {% for i in gsoc_x %}
+                    '{{ i.0 }}',
+                {% endfor %}
+            ]
+        },
+        options: {
+            title: {
+                display:true,
+                text:'GSoC'
+            },
+            responsive: true,
+            maintainAspectRatio: true
+        }
+    };
+
+    window.onload = function() {
+        var ctx = document.getElementById("gsoc-chart").getContext("2d");
+        window.myPie = new Chart(ctx, config);
+    };
+
+</script>
+{% endblock %}
+
+{% block css %}
+    <style>
+
+        #gsoc-chart {
+           max-height: 400px;
+           max-width: 400px;
+           margin: 40px 0;
+        }
+
+        #page-header {
+            margin: 30px;
+            text-align: center;
+        }
+
+        .container-fluid {
+            margin: 0 6%;
+        }
+
+        .click {
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}

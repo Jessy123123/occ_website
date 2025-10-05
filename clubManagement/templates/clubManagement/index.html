@@ -1,0 +1,273 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load index %}
+{% block title %} Attendance {% endblock %}
+
+{% block body %}
+    {% include 'base/nav-bar.html' %}
+    <div id="wrap">
+        <div id="main">
+            <!-- content goes here -->
+            <div class="container">
+                <div class="row">
+                    <h1 class="col-md-12 head">FOSS@Amrita</h1>
+                    <div class="col-md-8 offset-md-2">
+                        <div class="card">
+                            <div class="card-block row">
+                                <h1 class="card-title col-md-12">Attendance</h1>
+                                <h5 class="card-subtitle col-md-12 text-muted">Attendance report</h5>
+                                <hr class="col-md-11">
+                                <div class="alert alert-danger col-md-12" id="error" role="alert" style="display: none;">
+
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="year">Year</label>
+                                    <select class="form-control" onchange="printDaysInMonth()" id="year">
+                                        {% for year in year_list %}
+                                            <option value="{{ year }}">{{ year }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="month">Month</label>
+                                    <select class="form-control" onchange="printDaysInMonth()" id="month">
+                                        <option value="all">All</option>
+                                        {% for i in list %}
+                                            <option value="{{ i }}">{{ month_list|index:i }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="day">Day</label>
+                                    <select class="form-control" id="day">
+                                        <option value="all">All</option>
+                                        {% for day in day_list %}
+                                            <option value="{{ day }}">{{ day }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    <label for="batch">Batch</label>
+                                    <select class="form-control" onchange="errorBatch()" id="batch">
+                                        <option value="all">All</option>
+                                        {% for batch in batch_list %}
+                                            <option value="{{ batch }}">{{ batch }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3 button">
+                                    <button onclick="attendanceLink()" class="btn btn-primary">View attendance</button>
+                                </div>
+                                {% if request.user.is_superuser %}
+                                    <div class="col-md-3 button">
+                                        <button onclick="editAttendance()" class="btn btn-secondary">Add attendance</button>
+                                    </div>
+                                {% endif %}
+
+
+                                <hr class="col-md-11">
+
+                                <div class="dropdown col-md-6">
+                                    <label for="search">Student</label>
+                                    <input id="search" onkeyup="myFunction()" class="form-control"
+                                           data-toggle="dropdown" placeholder="Search..." autocomplete="off">
+                                    <input type="hidden" id="search-id" name="user_id">
+                                    <div class="dropdown-menu" id="search-results">
+                                        {% for user in user_list %}
+                                            <p onclick="addText({{ user.id }}, '{{ user.first_name }} {{ user.last_name }}')"
+                                               class="dropdown-item">{{ user.first_name }} {{ user.last_name }}</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 button">
+                                    <button onclick="studentAttendance()" class="btn btn-primary">Student report</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-deck col-md-8 offset-md-2">
+                        <div class="card">
+                            <img class="card-img-top img-fluid" src="{% static 'clubManagement/image/teams.png' %}" alt="Card image cap">
+                            <div class="card-block">
+                                <h4 class="card-title">Teams</h4>
+                                <p class="card-text">The various teams and members of the club.</p>
+                                <a href="{% url 'team' %}" class="btn btn-primary">View all</a>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <img class="card-img-top img-fluid"
+                                 src="{% static 'clubManagement/image/great_power_great_responsibility.jpg' %}"
+                                 alt="Card image cap">
+                            <div class="card-block">
+                                <h4 class="card-title">Responsibilities</h4>
+                                <p class="card-text">Responsibilities assigned to each student in the club.</p>
+                                <a href="{% url 'responsibility' %}" class="btn btn-primary">View all</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'base/footer.html' %}
+
+    <style>
+        .card-deck {
+            margin-top: 50px;
+        }
+
+        .container {
+            margin-top: 70px;
+        }
+
+        .head {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        body {
+            background-color: #fcfcfc;
+        }
+
+        .button {
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+    </style>
+
+    <script>
+        function myFunction() {
+            // Declare variables
+            var input, filter, items, i;
+            input = document.getElementById('search');
+            filter = input.value.toUpperCase();
+            items = document.getElementsByClassName('dropdown-item');
+
+            // Loop through all list items, and hide those who don't match the search query
+            for (i = 0; i < items.length; i++) {
+                if (items[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    items[i].style.display = "";
+                } else {
+                    items[i].style.display = "none";
+                }
+            }
+        }
+        function addText(id, name) {
+            var inp1 = document.getElementById('search');
+            var inp2 = document.getElementById('search-id');
+            inp1.value = name;
+            inp2.value = id;
+        }
+
+        function printDaysInMonth() {
+             var year_input = document.getElementById('year');
+             var month_input = document.getElementById('month');
+
+             var day_select = document.getElementById('day');
+
+             if(month_input.value !== 'all') {
+                 var year = parseInt(year_input.value);
+                 var month = parseInt(month_input.value);
+
+                 var date = new Date(year, month, 1);
+
+                 while (date.getMonth() === month) {
+                    var day = new Date(date).getDate();
+                    date.setDate(date.getDate() + 1);
+                    var opt = document.createElement('option');
+                    opt.value = day;
+                    opt.innerHTML = day.toString();
+                    day_select.appendChild(opt);
+                 }
+             }
+        }
+
+        function errorBatch() {
+            var batch_input = document.getElementById('batch');
+            if(batch_input.value !== 'all')
+                document.getElementById('error').style.display = 'none';
+        }
+
+
+        function attendanceLink() {
+            var batch_input = document.getElementById('batch');
+            var year_input = document.getElementById('year');
+            var month_input = document.getElementById('month');
+            var day_input = document.getElementById('day');
+
+            var link = '/club/attendance-report/';
+
+            if(batch_input.value !== 'all')
+                link += batch_input.value + '/';
+            if(year_input !== 'all')
+                link += year_input.value + '/';
+            if(month_input.value !== 'all') {
+                if(batch_input.value === 'all' && day_input.value === 'all') {
+                    var error = document.getElementById('error');
+                    error.innerHTML = '<strong>Error!</strong> Batch or day should be selected.';
+                    error.style.display = 'block';
+                    return;
+                }
+                var mon = parseInt(month_input.value) + 1;
+                link += mon.toString() + '/';
+            }
+            if(day_input.value !== 'all')
+                link += day_input.value + '/';
+
+            if(day_input.value !== 'all' && batch_input.value !== 'all' && month_input.value !== 'all')
+                link = '/club/attendance/' + batch_input.value + '/' + year_input.value + '/' +
+                    (parseInt(month_input.value) + 1).toString() + '/' + day_input.value + '/';
+
+            else if(day_input.value !== 'all' && month_input.value !== 'all')
+                link = '/club/attendance/' + year_input.value + '/' +
+                    (parseInt(month_input.value) + 1).toString() + '/' + day_input.value + '/';
+
+            window.location = link;
+        }
+
+        function editAttendance() {
+            var batch_input = document.getElementById('batch');
+            var year_input = document.getElementById('year');
+            var month_input = document.getElementById('month');
+            var day_input = document.getElementById('day');
+
+            var link = '/club/attendance/';
+
+            console.log(month_input.value);
+            console.log(day_input.value);
+
+            if(day_input.value !== 'all' && month_input.value !== 'all' && batch_input.value !== 'all')
+                link += batch_input.value + '/' + year_input.value + '/' +
+                    (parseInt(month_input.value)+1).toString() + '/' + day_input.value + '/';
+            else if(day_input.value !== 'all' && month_input.value !== 'all')
+                link += year_input.value + '/' + (parseInt(month_input.value)+1).toString() +
+                    '/' + day_input.value + '/';
+            else {
+                var error = document.getElementById('error');
+                error.innerHTML = '<strong>Error!</strong> Month and day should be selected.';
+                error.style.display = 'block';
+                return;
+            }
+            window.location = link;
+        }
+
+        function studentAttendance() {
+            var inp = document.getElementById('search-id');
+            var year_input = document.getElementById('year');
+            if(inp.value === '') {
+                var error = document.getElementById('error');
+                error.innerHTML = '<strong>Error!</strong> please select a student.';
+                error.style.display = 'block';
+                return;
+            }
+            var link = '/club/attendance-report-student/' + year_input.value + '/' + inp.value + '/';
+            window.location = link;
+        }
+    </script>
+
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %} {% endblock %}
+{% load index %}
+
+{% block body %}
+    {% include 'base/nav-bar.html' %}
+    <div id="wrap">
+        <div id="main">
+            <!-- content goes here -->
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1 id="page-header">Contribution</h1>
+                    </div>
+                    <canvas id="contribution-chart" ></canvas>
+                    <div class="col-md-12 table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-default">
+                            <tr>
+                                <th>Student</th>
+                                <th>Organisation</th>
+                                <th>Title</th>
+                                <th>Bug id</th>
+                                <th>Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for object in contribution_list %}
+                                <tr class="click"
+                                    onclick="window.location='{% url 'contribution_detail' object.id %}';">
+                                    <th scope="row">{{ object.user.first_name }} {{ object.user.last_name }}</th>
+                                    <td>{{ object.organisation }}</td>
+                                    <td>{{ object.title }}</td>
+                                    <td><a href="{{ object.url }}">{{ object.contribution_id }}</a></td>
+                                    {% for i in range %}
+                                                    {% ifequal object.date.month i %}
+                                                    <td> {{ month|index:i }}, {{ object.date.year }}</td>
+                                                {% endifequal %}
+                                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {% include 'base/footer.html' %}
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'base/js/chart-bundle.js'%}"></script>
+<script>
+    var config = {
+        type: 'pie',
+        data: {
+            datasets: [{
+                data: [
+                    {% for i in contribution_y %}
+                        {{ i }},
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    {% for i in color_list %}
+                        '{{ i }}',
+                    {% endfor %}
+                ],
+                label: 'Organisations'
+            }],
+            labels: [
+                {% for i in contribution_x %}
+                    '{{ i.0 }}',
+                {% endfor %}
+            ]
+        },
+        options: {
+            title: {
+                display:true,
+                text:'Contributions'
+            },
+            responsive: true,
+            maintainAspectRatio: true
+        }
+    };
+
+    window.onload = function() {
+        var ctx = document.getElementById("contribution-chart").getContext("2d");
+        window.myPie = new Chart(ctx, config);
+    };
+
+
+</script>
+{% endblock %}
+
+{% block css %}
+    <style>
+        #contribution-chart {
+           max-height: 400px;
+           max-width: 400px;
+            margin: 40px 0;
+        }
+
+        #page-header {
+            margin: 30px;
+            text-align: center;
+        }
+
+        .container-fluid {
+            margin: 0 6%;
+        }
+
+        .click {
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}

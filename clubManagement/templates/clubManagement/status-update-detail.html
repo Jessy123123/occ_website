@@ -1,0 +1,43 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %} status update {% endblock %}
+
+{% block body %}
+    {% include 'base/nav-bar.html' %}
+    <div id="wrap">
+        <div id="main">
+            <!-- content goes here -->
+            <div class="container">
+                <div class="row">
+                    <div class="card col-md-12">
+                        <div class="card-block">
+                            <h1 class="card-title">Status Update</h1>
+                            <p class="card-text">
+                                <small class="text-muted">Status update list for {{ date }}</small>
+                            </p>
+                            <div class="row">
+                                {% for year, value in status_update.items %}
+                                    <h3>{{ year }}</h3>
+                                    {% for name, status in value.items %}
+                                        <p>{{ name }} - {{ status }}</p>
+                                    {%  endfor %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'base/footer.html' %}
+
+    <style>
+        .card {
+            margin: 10px;
+        }
+        .container {
+            margin-top: 50px;
+        }
+    </style>
+{% endblock %}

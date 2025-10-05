@@ -1,0 +1,19 @@
+Status update report {{ date }}
+
+Students who didn't sent status updates:
+{% for year, value in status_update.items %}
+{{ year }}
+{% for name, status in value.items %}{% ifequal status "N" %}
+{{ name }}{% endifequal %}{% endfor %}{% endfor %}
+
+Students who sent status updates:
+{% for year, value in status_update.items %}
+{{ year }}
+{% for name, status in value.items %}{% ifequal status "Y" %}
+{{ name }}{% endifequal %}{% endfor %}{% endfor %}
+
+Thank you,
+
+{% if url %}More info: {{ url }}{% endif %}
+
+This is an automatically generated mail.
